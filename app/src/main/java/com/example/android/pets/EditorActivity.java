@@ -15,6 +15,9 @@
  */
 package com.example.android.pets;
 
+import android.annotation.SuppressLint;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +29,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.example.android.pets.data.PetContract;
+import com.example.android.pets.data.PetContract.PetEntry;
+import com.example.android.pets.data.PetDbHelper;
+
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -50,6 +59,8 @@ public class EditorActivity extends AppCompatActivity {
      */
     private int mGender = 0;
 
+    private SQLiteDatabase writableDB;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +73,7 @@ public class EditorActivity extends AppCompatActivity {
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
 
         setupSpinner();
+        writableDB=new PetDbHelper(this).getWritableDatabase();
     }
 
     /**
@@ -103,6 +115,20 @@ public class EditorActivity extends AppCompatActivity {
         });
     }
 
+    private void savePet(){
+        ContentValues value=new ContentValues();
+        value.put(PetEntry.COLUMN_PET_NAME,mNameEditText.getText().toString());
+        value.put(PetEntry.COLUMN_PET_BREED,mBreedEditText.getText().toString());
+        value.put(PetEntry.COLUMN_PET_GENDER,mGender);
+        value.put(PetEntry.COLUMN_PET_WEIGHT,Integer.parseInt(mWeightEditText.getText().toString()));
+        Long newOrder=writableDB.insert(PetEntry.TABLE_NAME,null,value);
+        if (newOrder==1){
+            Toast.makeText(this,"Insert failed!",Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this,"Success insert to id "+newOrder,Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu options from the res/menu/menu_editor.xml file.
@@ -117,7 +143,8 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+                savePet();
+                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
