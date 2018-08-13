@@ -15,10 +15,12 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetDbHelper;
@@ -65,14 +68,41 @@ public class CatalogActivity extends AppCompatActivity {
         PetDbHelper mDbHelper = new PetDbHelper(this);
         // Create and/or open a database to read from it
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        String[] projection={
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED,
+                PetEntry.COLUMN_PET_GENDER,
+                PetEntry.COLUMN_PET_WEIGHT
+        };
+
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
-        Cursor cursor = db.rawQuery("SELECT * FROM " + PetContract.PetEntry.TABLE_NAME, null);
+
+        Cursor cursor = getContentResolver().query(PetEntry.CONTENT_URI,projection,null,null,null);
+        int idName=cursor.getColumnIndex( PetEntry.COLUMN_PET_NAME);
+        int idBreed=cursor.getColumnIndex( PetEntry.COLUMN_PET_BREED);
+        int idGender=cursor.getColumnIndex( PetEntry.COLUMN_PET_GENDER);
+        int idWeight=cursor.getColumnIndex( PetEntry.COLUMN_PET_WEIGHT);
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
             TextView displayView = (TextView) findViewById(R.id.text_view_pet);
             displayView.setText("Number of rows in pets database table: " + cursor.getCount());
+            displayView.append("\n"
+                    +PetEntry.COLUMN_PET_NAME
+                    +"-"+ PetEntry.COLUMN_PET_BREED
+                    +"-"+ PetEntry.COLUMN_PET_GENDER
+                    +"-"+ PetEntry.COLUMN_PET_WEIGHT
+            );
+            while(cursor.moveToNext()){
+                displayView.append("\n"
+                        +cursor.getString(idName)
+                        +"-"+cursor.getString(idBreed)
+                        +"-"+cursor.getInt(idGender)
+                        +"-"+cursor.getInt(idWeight)
+                );
+            }
         } finally {
             // Always close the cursor when you're done reading from it. This releases all its
             // resources and makes it invalid.
@@ -88,9 +118,21 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_PET_BREED, "Terriar");
         values.put(PetEntry.COLUMN_PET_GENDER, PetEntry.GENDAR_MALE);
         values.put(PetEntry.COLUMN_PET_WEIGHT, 14);
-        Long newRowID = db.insert(PetEntry.TABLE_NAME, null, values);
-        Log.v("CatalogActivity", "Rowid is: " + newRowID);
+        Uri returnUri=getContentResolver().insert(PetEntry.CONTENT_URI,values);
+        Long newOrder= ContentUris.parseId(returnUri);
+        if (newOrder==-1){
+            Toast.makeText(this,"Insert failed!",Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this,"Save pet done.",Toast.LENGTH_SHORT).show();
+        }
     }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        displayDatabaseInfo();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu options from the res/menu/menu_catalog.xml file.
