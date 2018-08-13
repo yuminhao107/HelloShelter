@@ -26,10 +26,10 @@ public class PetCursorAdapter extends CursorAdapter {
         TextView tvBody = (TextView) view.findViewById(R.id.name);
         TextView tvPriority = (TextView) view.findViewById(R.id.summary);
         // Extract properties from cursor
-        String body = cursor.getString(cursor.getColumnIndexOrThrow(PetContract.PetEntry.COLUMN_PET_NAME));
-        int priority = cursor.getInt(cursor.getColumnIndexOrThrow(PetContract.PetEntry.COLUMN_PET_BREED));
+        String name = cursor.getString(cursor.getColumnIndexOrThrow(PetContract.PetEntry.COLUMN_PET_NAME));
+        String summary = cursor.getString(cursor.getColumnIndexOrThrow(PetContract.PetEntry.COLUMN_PET_BREED));
         // Populate fields with extracted properties
-        tvBody.setText(body);
-        tvPriority.setText(String.valueOf(priority));
+        tvBody.setText(name);
+        tvPriority.setText(summary);
     }
 }

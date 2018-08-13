@@ -46,7 +46,6 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public boolean onCreate() {
-        // TODO: Create and initialize a PetDbHelper object to gain access to the pets database.
         // Make sure the variable is a global variable, so it can be referenced from otherr
         // ContentProvider methods.
         petDbHelper=new PetDbHelper(getContext());
@@ -117,9 +116,6 @@ public class PetProvider extends ContentProvider {
      * for that specific row in the database.
      */
     private Uri insertPet(Uri uri, ContentValues values) {
-
-        // TODO: Insert a new pet into the pets database table with the given ContentValues
-
         // Once we know the ID of the new row in the table,
         // return the new URI with the ID appended to the end of it
         SQLiteDatabase database = petDbHelper.getWritableDatabase();
