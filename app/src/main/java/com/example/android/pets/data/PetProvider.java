@@ -1,6 +1,7 @@
 package com.example.android.pets.data;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -94,6 +95,7 @@ public class PetProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
+        cursor.setNotificationUri(getContext().getContentResolver(),uri);
         return cursor;
     }
 
@@ -120,6 +122,7 @@ public class PetProvider extends ContentProvider {
         // return the new URI with the ID appended to the end of it
         SQLiteDatabase database = petDbHelper.getWritableDatabase();
         long id=database.insert(PetEntry.TABLE_NAME,null,values);
+        getContext().getContentResolver().notifyChange(uri,null);
         return ContentUris.withAppendedId(uri, id);
     }
 
