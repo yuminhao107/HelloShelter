@@ -61,12 +61,17 @@ public class EditorActivity extends AppCompatActivity {
      */
     private int mGender = 0;
 
-    private SQLiteDatabase writableDB;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
+
+        Uri uri=getIntent().getData();
+        if (uri==null){
+            setTitle("Add a pet");
+        }else{
+            setTitle("Edit pet");
+        }
 
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
@@ -75,7 +80,6 @@ public class EditorActivity extends AppCompatActivity {
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
 
         setupSpinner();
-        writableDB=new PetDbHelper(this).getWritableDatabase();
     }
 
     /**

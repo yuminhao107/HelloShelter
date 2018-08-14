@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,6 +69,15 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         petAdapter = new PetCursorAdapter(this, null);
         // Attach cursor adapter to the ListView
         lvItems.setAdapter(petAdapter);
+
+        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Intent intent=new Intent(CatalogActivity.this,EditorActivity.class);
+                intent.setData(ContentUris.withAppendedId(PetEntry.CONTENT_URI,id));
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -110,10 +120,14 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
-                // Do nothing for now
+                deleteAllPets();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteAllPets() {
+//        getContentResolver().delete(PetEntry.CONTENT_URI,null,null);
     }
 
     @Override
